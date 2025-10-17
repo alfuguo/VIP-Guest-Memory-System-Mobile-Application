@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: vip-guest-memory-system
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vip_guest_db
+    username: ${DB_USERNAME:vip_user}
+    password: ${DB_PASSWORD:vip_password}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  security:
+    user:
+      name: admin
+      password: admin
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:mySecretKey1234567890123456789012345678901234567890}
+  expiration: 900000 # 15 minutes in milliseconds
+  refresh-expiration: 86400000 # 24 hours in milliseconds
+
+# Security Configuration
+security:
+  max-failed-attempts: 5
+  lockout-duration: 1800000 # 30 minutes in milliseconds
+  session-timeout: 1800000 # 30 minutes in milliseconds
+
+logging:
+  level:
+    com.restaurant.vip: DEBUG
+    org.springframework.security: DEBUG

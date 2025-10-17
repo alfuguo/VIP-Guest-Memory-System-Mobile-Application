@@ -1,0 +1,45 @@
+package com.restaurant.vip.dto;
+
+import com.restaurant.vip.validation.NoSqlInjection;
+import com.restaurant.vip.validation.SafeHtml;
+import com.restaurant.vip.validation.ValidPassword;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public class LoginRequest {
+    
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @SafeHtml(maxLength = 255)
+    @NoSqlInjection
+    private String email;
+    
+    @NotBlank(message = "Password is required")
+    @ValidPassword
+    private String password;
+    
+    // Constructors
+    public LoginRequest() {}
+    
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+    
+    // Getters and Setters
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
