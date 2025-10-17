@@ -1,5 +1,7 @@
 package com.restaurant.vip.controller;
 
+import com.restaurant.vip.audit.Auditable;
+import com.restaurant.vip.audit.AuditAction;
 import com.restaurant.vip.dto.NotificationResponse;
 import com.restaurant.vip.dto.NotificationSummaryResponse;
 import com.restaurant.vip.service.NotificationService;
@@ -27,6 +29,7 @@ public class NotificationController {
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access notification summary")
     public ResponseEntity<NotificationSummaryResponse> getAllNotifications() {
         NotificationSummaryResponse notifications = notificationService.getAllNotifications();
         return ResponseEntity.ok(notifications);
@@ -38,6 +41,7 @@ public class NotificationController {
      */
     @GetMapping("/pre-arrival")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access pre-arrival notifications")
     public ResponseEntity<List<NotificationResponse>> getPreArrivalNotifications() {
         List<NotificationResponse> notifications = notificationService.getPreArrivalNotifications();
         return ResponseEntity.ok(notifications);
@@ -49,6 +53,7 @@ public class NotificationController {
      */
     @GetMapping("/special-occasions")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access special occasion notifications")
     public ResponseEntity<List<NotificationResponse>> getSpecialOccasionNotifications() {
         List<NotificationResponse> notifications = notificationService.getSpecialOccasionNotifications();
         return ResponseEntity.ok(notifications);
@@ -60,6 +65,7 @@ public class NotificationController {
      */
     @GetMapping("/returning-guests")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access returning guest notifications")
     public ResponseEntity<List<NotificationResponse>> getReturningGuestNotifications() {
         List<NotificationResponse> notifications = notificationService.getReturningGuestNotifications();
         return ResponseEntity.ok(notifications);
@@ -70,6 +76,7 @@ public class NotificationController {
      */
     @GetMapping("/type/{type}")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access notifications by type", logParameters = true)
     public ResponseEntity<List<NotificationResponse>> getNotificationsByType(
             @PathVariable String type) {
         
@@ -90,6 +97,7 @@ public class NotificationController {
      */
     @PostMapping("/{guestId}/acknowledge")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.UPDATE, tableName = "guests", description = "Acknowledge notification", logParameters = true)
     public ResponseEntity<Void> acknowledgeNotification(
             @PathVariable Long guestId) {
         

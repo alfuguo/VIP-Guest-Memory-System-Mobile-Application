@@ -83,6 +83,7 @@ public class GuestController {
      */
     @GetMapping
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access all guest profiles")
     public ResponseEntity<PagedResponse<GuestResponse>> getAllGuests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -112,6 +113,7 @@ public class GuestController {
      */
     @GetMapping("/search")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Quick search guest profiles", logParameters = true)
     public ResponseEntity<PagedResponse<GuestResponse>> quickSearch(
             @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") int page,
@@ -136,6 +138,7 @@ public class GuestController {
      */
     @GetMapping("/check-phone")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Check phone number existence", logParameters = true)
     public ResponseEntity<DuplicateCheckResponse> checkPhoneExists(@RequestParam String phone) {
         boolean exists = guestService.existsByPhone(phone);
         
@@ -161,6 +164,7 @@ public class GuestController {
      */
     @GetMapping("/upcoming-occasions")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Access guests with upcoming occasions")
     public ResponseEntity<PagedResponse<GuestResponse>> getGuestsWithUpcomingOccasions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -182,6 +186,7 @@ public class GuestController {
      */
     @GetMapping("/filter/dietary")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Filter guests by dietary restrictions", logParameters = true)
     public ResponseEntity<PagedResponse<GuestResponse>> filterByDietaryRestrictions(
             @RequestParam List<String> restrictions,
             @RequestParam(defaultValue = "0") int page,
@@ -206,6 +211,7 @@ public class GuestController {
      */
     @GetMapping("/filter/drinks")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Filter guests by favorite drinks", logParameters = true)
     public ResponseEntity<PagedResponse<GuestResponse>> filterByFavoriteDrinks(
             @RequestParam List<String> drinks,
             @RequestParam(defaultValue = "0") int page,
@@ -230,6 +236,7 @@ public class GuestController {
      */
     @GetMapping("/filter/seating")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Filter guests by seating preference", logParameters = true)
     public ResponseEntity<PagedResponse<GuestResponse>> filterBySeatingPreference(
             @RequestParam String preference,
             @RequestParam(defaultValue = "0") int page,
@@ -254,6 +261,7 @@ public class GuestController {
      */
     @GetMapping("/filter/occasions")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Filter guests by occasions", logParameters = true)
     public ResponseEntity<PagedResponse<GuestResponse>> filterByOccasions(
             @RequestParam(required = false) Boolean hasBirthday,
             @RequestParam(required = false) Boolean hasAnniversary,
@@ -280,6 +288,7 @@ public class GuestController {
      */
     @PostMapping("/{id}/photo")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.UPDATE, tableName = "guests", description = "Upload guest photo", sensitive = true)
     public ResponseEntity<GuestResponse> uploadGuestPhoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file) {
@@ -293,6 +302,7 @@ public class GuestController {
      */
     @DeleteMapping("/{id}/photo")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.DELETE, tableName = "guests", description = "Delete guest photo", sensitive = true)
     public ResponseEntity<GuestResponse> deleteGuestPhoto(@PathVariable Long id) {
         GuestResponse response = guestService.deleteGuestPhoto(id);
         return ResponseEntity.ok(response);
@@ -304,6 +314,7 @@ public class GuestController {
      */
     @PostMapping("/check-duplicates")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Check potential duplicates", logParameters = true)
     public ResponseEntity<PotentialDuplicatesResponse> checkPotentialDuplicates(
             @Valid @RequestBody GuestCreateRequest request) {
         PotentialDuplicatesResponse response = guestService.findPotentialDuplicates(request);
@@ -316,6 +327,7 @@ public class GuestController {
      */
     @PostMapping("/{id}/check-duplicates")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Check potential duplicates for update", logParameters = true)
     public ResponseEntity<PotentialDuplicatesResponse> checkPotentialDuplicatesForUpdate(
             @PathVariable Long id,
             @Valid @RequestBody GuestUpdateRequest request) {
@@ -329,6 +341,7 @@ public class GuestController {
      */
     @PostMapping("/comprehensive-duplicate-check")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Comprehensive duplicate check", logParameters = true)
     public ResponseEntity<DuplicateCheckResponse> comprehensiveDuplicateCheck(
             @Valid @RequestBody GuestCreateRequest request) {
         DuplicateCheckResponse response = guestService.comprehensiveDuplicateCheck(request);
@@ -341,6 +354,7 @@ public class GuestController {
      */
     @GetMapping("/{id}/check-phone")
     @PreAuthorize("hasRole('HOST') or hasRole('SERVER') or hasRole('MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "guests", description = "Check phone existence for update", logParameters = true)
     public ResponseEntity<DuplicateCheckResponse> checkPhoneExistsForUpdate(
             @PathVariable Long id,
             @RequestParam String phone) {

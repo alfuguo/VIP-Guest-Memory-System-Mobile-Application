@@ -131,6 +131,7 @@ public class VisitController {
      */
     @DeleteMapping("/{visitId}/notes")
     @PreAuthorize("hasRole('MANAGER')")
+    @Auditable(action = AuditAction.DELETE, tableName = "visits", description = "Clear visit notes", sensitive = true)
     public ResponseEntity<VisitNotesResponse> clearVisitNotes(@PathVariable Long visitId) {
         VisitNotesResponse response = visitService.clearVisitNotes(visitId);
         return ResponseEntity.ok(response);
@@ -141,6 +142,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/with-notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest visits with notes")
     public ResponseEntity<List<VisitResponse>> getGuestVisitsWithNotes(@PathVariable Long guestId) {
         List<VisitResponse> response = visitService.getGuestVisitsWithNotes(guestId);
         return ResponseEntity.ok(response);
@@ -151,6 +153,7 @@ public class VisitController {
      */
     @GetMapping("/{visitId}/notes/can-edit")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Check visit notes edit permission")
     public ResponseEntity<Map<String, Boolean>> canEditVisitNotes(@PathVariable Long visitId) {
         boolean canEdit = visitService.canCurrentStaffEditVisitNotes(visitId);
         return ResponseEntity.ok(Map.of("canEdit", canEdit));
@@ -161,6 +164,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest visits paginated")
     public ResponseEntity<PagedResponse<VisitResponse>> getGuestVisits(
             @PathVariable Long guestId,
             @RequestParam(defaultValue = "0") int page,
@@ -177,6 +181,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/all")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access all guest visits")
     public ResponseEntity<List<VisitResponse>> getAllGuestVisits(@PathVariable Long guestId) {
         List<VisitResponse> response = visitService.getAllGuestVisits(guestId);
         return ResponseEntity.ok(response);
@@ -187,6 +192,7 @@ public class VisitController {
      */
     @GetMapping("/date-range")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access visits by date range", logParameters = true)
     public ResponseEntity<PagedResponse<VisitResponse>> getVisitsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -202,6 +208,7 @@ public class VisitController {
      */
     @GetMapping("/today")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access today's visits")
     public ResponseEntity<List<VisitResponse>> getTodaysVisits() {
         List<VisitResponse> response = visitService.getTodaysVisits();
         return ResponseEntity.ok(response);
@@ -212,6 +219,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/count")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest visit count")
     public ResponseEntity<Map<String, Long>> getGuestVisitCount(@PathVariable Long guestId) {
         long count = visitService.getGuestVisitCount(guestId);
         return ResponseEntity.ok(Map.of("visitCount", count));
@@ -222,6 +230,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/last")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest's last visit")
     public ResponseEntity<VisitResponse> getLastVisitForGuest(@PathVariable Long guestId) {
         VisitResponse response = visitService.getLastVisitForGuest(guestId);
         if (response == null) {
@@ -235,6 +244,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/history")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest visit history")
     public ResponseEntity<VisitHistoryResponse> getGuestVisitHistory(@PathVariable Long guestId) {
         VisitHistoryResponse response = visitService.getGuestVisitHistory(guestId);
         return ResponseEntity.ok(response);
@@ -245,6 +255,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/history/paginated")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access paginated guest visit history")
     public ResponseEntity<PagedResponse<VisitHistoryResponse.VisitSummary>> getGuestVisitHistoryPaginated(
             @PathVariable Long guestId,
             @RequestParam(defaultValue = "0") int page,
@@ -262,6 +273,7 @@ public class VisitController {
      */
     @GetMapping("/guest/{guestId}/statistics")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access guest visit statistics")
     public ResponseEntity<Map<String, Object>> getGuestVisitStatistics(@PathVariable Long guestId) {
         Map<String, Object> statistics = visitService.getGuestVisitStatistics(guestId);
         return ResponseEntity.ok(statistics);
@@ -272,6 +284,7 @@ public class VisitController {
      */
     @GetMapping("/recent")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access recent visits", logParameters = true)
     public ResponseEntity<List<VisitResponse>> getRecentVisits(
             @RequestParam(defaultValue = "7") int days) {
         List<VisitResponse> response = visitService.getRecentVisits(days);
@@ -283,6 +296,7 @@ public class VisitController {
      */
     @GetMapping("/search/notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Search visits by notes", logParameters = true)
     public ResponseEntity<List<VisitResponse>> searchVisitsByNotes(
             @RequestParam String searchTerm) {
         List<VisitResponse> response = visitService.searchVisitsByNotes(searchTerm);
