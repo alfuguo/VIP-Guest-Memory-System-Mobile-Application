@@ -1,5 +1,7 @@
 package com.restaurant.vip.controller;
 
+import com.restaurant.vip.audit.Auditable;
+import com.restaurant.vip.audit.AuditAction;
 import com.restaurant.vip.dto.PagedResponse;
 import com.restaurant.vip.dto.VisitCreateRequest;
 import com.restaurant.vip.dto.VisitHistoryResponse;
@@ -36,6 +38,7 @@ public class VisitController {
      */
     @PostMapping
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.CREATE, tableName = "visits", description = "Create new visit record", logParameters = true, logReturnValue = true)
     public ResponseEntity<VisitResponse> createVisit(@Valid @RequestBody VisitCreateRequest request) {
         VisitResponse response = visitService.createVisit(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -46,6 +49,7 @@ public class VisitController {
      */
     @GetMapping("/{visitId}")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access visit record")
     public ResponseEntity<VisitResponse> getVisit(@PathVariable Long visitId) {
         VisitResponse response = visitService.getVisitById(visitId);
         return ResponseEntity.ok(response);
@@ -56,6 +60,7 @@ public class VisitController {
      */
     @PutMapping("/{visitId}")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.UPDATE, tableName = "visits", description = "Update visit record", logParameters = true, sensitive = true)
     public ResponseEntity<VisitResponse> updateVisit(@PathVariable Long visitId, 
                                                    @Valid @RequestBody VisitUpdateRequest request) {
         VisitResponse response = visitService.updateVisit(visitId, request);
@@ -67,6 +72,7 @@ public class VisitController {
      */
     @DeleteMapping("/{visitId}")
     @PreAuthorize("hasRole('MANAGER')")
+    @Auditable(action = AuditAction.DELETE, tableName = "visits", description = "Delete visit record", sensitive = true)
     public ResponseEntity<Void> deleteVisit(@PathVariable Long visitId) {
         visitService.deleteVisit(visitId);
         return ResponseEntity.noContent().build();
@@ -77,6 +83,7 @@ public class VisitController {
      */
     @PatchMapping("/{visitId}/notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.UPDATE, tableName = "visits", description = "Update visit notes", logParameters = true, sensitive = true)
     public ResponseEntity<VisitResponse> updateVisitNotes(@PathVariable Long visitId, 
                                                         @RequestBody Map<String, String> request) {
         String notes = request.get("notes");
@@ -89,6 +96,7 @@ public class VisitController {
      */
     @GetMapping("/{visitId}/notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.READ, tableName = "visits", description = "Access visit notes")
     public ResponseEntity<VisitNotesResponse> getVisitNotes(@PathVariable Long visitId) {
         VisitNotesResponse response = visitService.getVisitNotes(visitId);
         return ResponseEntity.ok(response);
@@ -99,6 +107,7 @@ public class VisitController {
      */
     @PostMapping("/{visitId}/notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.CREATE, tableName = "visits", description = "Add visit notes", logParameters = true, sensitive = true)
     public ResponseEntity<VisitNotesResponse> addVisitNotes(@PathVariable Long visitId, 
                                                           @Valid @RequestBody VisitNotesRequest request) {
         VisitNotesResponse response = visitService.addVisitNotes(visitId, request.getNotes());
@@ -110,6 +119,7 @@ public class VisitController {
      */
     @PutMapping("/{visitId}/notes")
     @PreAuthorize("hasAnyRole('HOST', 'SERVER', 'MANAGER')")
+    @Auditable(action = AuditAction.UPDATE, tableName = "visits", description = "Update visit notes enhanced", logParameters = true, sensitive = true)
     public ResponseEntity<VisitNotesResponse> updateVisitNotesEnhanced(@PathVariable Long visitId, 
                                                                      @Valid @RequestBody VisitNotesRequest request) {
         VisitNotesResponse response = visitService.updateVisitNotesEnhanced(visitId, request.getNotes());
