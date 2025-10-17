@@ -62,3 +62,19 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# SSL Certificates (security)
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
+ssl/*.p12
+ssl/*.pfx
+
+# Deployment logs and backups
+deploy.log
+health-check.log
+backups/
+*.backup
+
+# Docker volumes data
+uploads/

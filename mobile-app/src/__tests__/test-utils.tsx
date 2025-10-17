@@ -45,6 +45,7 @@ export const mockVisit = {
   serviceNotes: 'Celebrated anniversary',
   staffName: 'Jane Smith',
   createdAt: '2024-01-15T19:30:00Z',
+  updatedAt: '2024-01-15T19:30:00Z',
 };
 
 export const mockNotification = {

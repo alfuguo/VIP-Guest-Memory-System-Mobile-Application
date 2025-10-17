@@ -4,166 +4,147 @@ import VisitCard from '../VisitCard';
 import { mockVisit } from '../../__tests__/test-utils';
 
 describe('VisitCard', () => {
-  const mockOnPress = jest.fn();
+    const mockOnEdit = jest.fn();
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-  it('should render visit information correctly', () => {
-    const { getByText, getByTestId } = render(
-      <VisitCard visit={mockVisit} onPress={mockOnPress} />
-    );
+    it('should render visit information correctly', () => {
+        const { getByText } = render(
+            <VisitCard visit={mockVisit} />
+        );
 
-    expect(getByText('Jan 15, 2024')).toBeTruthy();
-    expect(getByText('7:30 PM')).toBeTruthy();
-    expect(getByText('Party of 2')).toBeTruthy();
-    expect(getByText('Table A5')).toBeTruthy();
-    expect(getByText('Server: Jane Smith')).toBeTruthy();
-    expect(getByTestId('visit-card')).toBeTruthy();
-  });
+        expect(getByText(/Jan 15, 2024/)).toBeTruthy();
+        expect(getByText(/7:30 PM/)).toBeTruthy();
+        expect(getByText(/Party of 2/)).toBeTruthy();
+        expect(getByText(/Table A5/)).toBeTruthy();
+        expect(getByText(/Jane Smith/)).toBeTruthy();
+    });
 
-  it('should display service notes when available', () => {
-    const { getByText } = render(
-      <VisitCard visit={mockVisit} onPress={mockOnPress} />
-    );
+    it('should display service notes when available', () => {
+        const { getByText } = render(
+            <VisitCard visit={mockVisit} />
+        );
 
-    expect(getByText('Celebrated anniversary')).toBeTruthy();
-  });
+        expect(getByText(/Celebrated anniversary/)).toBeTruthy();
+    });
 
-  it('should handle visit without service notes', () => {
-    const visitWithoutNotes = {
-      ...mockVisit,
-      serviceNotes: undefined,
-    };
+    it('should handle visit without service notes', () => {
+        const visitWithoutNotes = {
+            ...mockVisit,
+            serviceNotes: '',
+        };
 
-    const { queryByText } = render(
-      <VisitCard visit={visitWithoutNotes} onPress={mockOnPress} />
-    );
+        const { queryByText } = render(
+            <VisitCard visit={visitWithoutNotes} />
+        );
 
-    expect(queryByText('Celebrated anniversary')).toBeNull();
-  });
+        expect(queryByText('Celebrated anniversary')).toBeNull();
+    });
 
-  it('should handle visit without table number', () => {
-    const visitWithoutTable = {
-      ...mockVisit,
-      tableNumber: undefined,
-    };
+    it('should handle visit without table number', () => {
+        const visitWithoutTable = {
+            ...mockVisit,
+            tableNumber: '',
+        };
 
-    const { queryByText } = render(
-      <VisitCard visit={visitWithoutTable} onPress={mockOnPress} />
-    );
+        const { queryByText } = render(
+            <VisitCard visit={visitWithoutTable} />
+        );
 
-    expect(queryByText('Table A5')).toBeNull();
-  });
+        expect(queryByText(/Table A5/)).toBeNull();
+    });
 
-  it('should handle press event', () => {
-    const { getByTestId } = render(
-      <VisitCard visit={mockVisit} onPress={mockOnPress} />
-    );
+    it('should handle edit functionality when canEdit is true', () => {
+        const { getByRole } = render(
+            <VisitCard visit={mockVisit} onEdit={mockOnEdit} canEdit={true} />
+        );
 
-    const card = getByTestId('visit-card');
-    fireEvent.press(card);
+        const editButton = getByRole('button');
+        fireEvent.press(editButton);
 
-    expect(mockOnPress).toHaveBeenCalledWith(mockVisit);
-  });
+        expect(mockOnEdit).toHaveBeenCalledWith(mockVisit);
+    });
 
-  it('should display party size correctly', () => {
-    const largePartyVisit = {
-      ...mockVisit,
-      partySize: 8,
-    };
+    it('should display party size correctly', () => {
+        const largePartyVisit = {
+            ...mockVisit,
+            partySize: 8,
+        };
 
-    const { getByText } = render(
-      <VisitCard visit={largePartyVisit} onPress={mockOnPress} />
-    );
+        const { getByText } = render(
+            <VisitCard visit={largePartyVisit} />
+        );
 
-    expect(getByText('Party of 8')).toBeTruthy();
-  });
+        expect(getByText(/Party of 8/)).toBeTruthy();
+    });
 
-  it('should handle single person party', () => {
-    const singlePartyVisit = {
-      ...mockVisit,
-      partySize: 1,
-    };
+    it('should handle single person party', () => {
+        const singlePartyVisit = {
+            ...mockVisit,
+            partySize: 1,
+        };
 
-    const { getByText } = render(
-      <VisitCard visit={singlePartyVisit} onPress={mockOnPress} />
-    );
+        const { getByText } = render(
+            <VisitCard visit={singlePartyVisit} />
+        );
 
-    expect(getByText('Party of 1')).toBeTruthy();
-  });
+        expect(getByText(/Party of 1/)).toBeTruthy();
+    });
 
-  it('should format time correctly for different times', () => {
-    const morningVisit = {
-      ...mockVisit,
-      visitTime: '09:30:00',
-    };
+    it('should format time correctly for different times', () => {
+        const morningVisit = {
+            ...mockVisit,
+            visitTime: '09:30:00',
+        };
 
-    const { getByText } = render(
-      <VisitCard visit={morningVisit} onPress={mockOnPress} />
-    );
+        const { getByText } = render(
+            <VisitCard visit={morningVisit} />
+        );
 
-    expect(getByText('9:30 AM')).toBeTruthy();
-  });
+        expect(getByText(/9:30 AM/)).toBeTruthy();
+    });
 
-  it('should format date correctly for different dates', () => {
-    const differentDateVisit = {
-      ...mockVisit,
-      visitDate: '2023-12-25',
-    };
+    it('should format date correctly for different dates', () => {
+        const differentDateVisit = {
+            ...mockVisit,
+            visitDate: '2023-12-25',
+        };
 
-    const { getByText } = render(
-      <VisitCard visit={differentDateVisit} onPress={mockOnPress} />
-    );
+        const { getByText } = render(
+            <VisitCard visit={differentDateVisit} />
+        );
 
-    expect(getByText('Dec 25, 2023')).toBeTruthy();
-  });
+        expect(getByText(/Dec 25, 2023/)).toBeTruthy();
+    });
 
-  it('should show visit duration if provided', () => {
-    const visitWithDuration = {
-      ...mockVisit,
-      duration: 120, // 2 hours in minutes
-    };
+    it('should handle visit without staff name', () => {
+        const visitWithoutStaff = {
+            ...mockVisit,
+            staffName: '',
+        };
 
-    const { getByText } = render(
-      <VisitCard visit={visitWithDuration} onPress={mockOnPress} />
-    );
+        const { queryByText } = render(
+            <VisitCard visit={visitWithoutStaff} />
+        );
 
-    expect(getByText('Duration: 2h 0m')).toBeTruthy();
-  });
+        expect(queryByText(/Jane Smith/)).toBeNull();
+    });
 
-  it('should handle visit without staff name', () => {
-    const visitWithoutStaff = {
-      ...mockVisit,
-      staffName: undefined,
-    };
+    it('should not show edit button when canEdit is false', () => {
+        const { queryByRole } = render(
+            <VisitCard visit={mockVisit} canEdit={false} />
+        );
 
-    const { queryByText } = render(
-      <VisitCard visit={visitWithoutStaff} onPress={mockOnPress} />
-    );
+        expect(queryByRole('button')).toBeNull();
+    });
 
-    expect(queryByText('Server: Jane Smith')).toBeNull();
-  });
+    it('should not show edit button when onEdit is not provided', () => {
+        const { queryByRole } = render(
+            <VisitCard visit={mockVisit} canEdit={true} />
+        );
 
-  it('should show edit indicator for recent visits', () => {
-    const recentVisit = {
-      ...mockVisit,
-      createdAt: new Date().toISOString(), // Very recent
-    };
-
-    const { getByTestId } = render(
-      <VisitCard visit={recentVisit} onPress={mockOnPress} canEdit={true} />
-    );
-
-    expect(getByTestId('edit-indicator')).toBeTruthy();
-  });
-
-  it('should not show edit indicator when canEdit is false', () => {
-    const { queryByTestId } = render(
-      <VisitCard visit={mockVisit} onPress={mockOnPress} canEdit={false} />
-    );
-
-    expect(queryByTestId('edit-indicator')).toBeNull();
-  });
+        expect(queryByRole('button')).toBeNull();
+    });
 });

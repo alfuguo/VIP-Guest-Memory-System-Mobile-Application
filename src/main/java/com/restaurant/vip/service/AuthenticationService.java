@@ -189,4 +189,11 @@ public class AuthenticationService {
             throw new InvalidCredentialsException("Invalid token");
         }
     }
+
+    /**
+     * Find staff member by email
+     */
+    public Staff findByEmail(String email) {
+        return staffRepository.findByEmail(email).orElse(null);
+    }
 }

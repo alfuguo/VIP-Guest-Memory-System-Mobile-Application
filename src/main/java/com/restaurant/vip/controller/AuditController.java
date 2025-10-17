@@ -44,8 +44,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);
@@ -69,8 +68,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);
@@ -94,8 +92,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);
@@ -119,8 +116,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);
@@ -145,8 +141,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);
@@ -169,8 +164,7 @@ public class AuditController {
             auditLogs.getNumber(),
             auditLogs.getSize(),
             auditLogs.getTotalElements(),
-            auditLogs.getTotalPages(),
-            auditLogs.isLast()
+            auditLogs.getTotalPages()
         );
         
         return ResponseEntity.ok(response);

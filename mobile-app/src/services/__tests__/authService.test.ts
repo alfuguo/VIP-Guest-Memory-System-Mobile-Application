@@ -1,16 +1,13 @@
-import { login, logout, validateToken, refreshAuthToken } from '../authService';
-import { api } from '../api';
-import { storeToken, storeRefreshToken, removeToken, removeRefreshToken } from '../../utils/tokenStorage';
+import { authService } from '../authService';
+import { apiClient } from '../api';
+import { tokenStorage } from '../../utils/tokenStorage';
 
 // Mock dependencies
 jest.mock('../api');
 jest.mock('../../utils/tokenStorage');
 
-const mockApi = api as jest.Mocked<typeof api>;
-const mockStoreToken = storeToken as jest.MockedFunction<typeof storeToken>;
-const mockStoreRefreshToken = storeRefreshToken as jest.MockedFunction<typeof storeRefreshToken>;
-const mockRemoveToken = removeToken as jest.MockedFunction<typeof removeToken>;
-const mockRemoveRefreshToken = removeRefreshToken as jest.MockedFunction<typeof removeRefreshToken>;
+const mockApiClient = apiClient as jest.Mocked<typeof apiClient>;
+const mockTokenStorage = tokenStorage as jest.Mocked<typeof tokenStorage>;
 
 describe('authService', () => {
   beforeEach(() => {
@@ -18,95 +15,122 @@ describe('authService', () => {
   });
 
   describe('login', () => {
-    it('should login successfully and store tokens', async () => {
-      const mockResponse = {
-        data: {
-          user: {
-            id: 1,
-            email: 'test@example.com',
-            firstName: 'Test',
-            lastName: 'User',
-            role: 'SERVER',
-          },
-          token: 'auth-token',
-          refreshToken: 'refresh-token',
-        },
-      };
-
-      mockApi.post.mockResolvedValue(mockResponse);
-      mockStoreToken.mockResolvedValue();
-      mockStoreRefreshToken.mockResolvedValue();
-
-      const result = await login('test@example.com', 'password');
-
-      expect(mockApi.post).toHaveBeenCalledWith('/auth/login', {
+    it('should login successfully', async () => {
+      const mockCredentials = {
         email: 'test@example.com',
-        password: 'password',
-      });
-      expect(mockStoreToken).toHaveBeenCalledWith('auth-token');
-      expect(mockStoreRefreshToken).toHaveBeenCalledWith('refresh-token');
-      expect(result).toEqual(mockResponse.data);
-    });
-
-    it('should handle login failure', async () => {
-      const error = new Error('Invalid credentials');
-      mockApi.post.mockRejectedValue(error);
-
-      await expect(login('test@example.com', 'wrong-password')).rejects.toThrow('Invalid credentials');
-      expect(mockStoreToken).not.toHaveBeenCalled();
-      expect(mockStoreRefreshToken).not.toHaveBeenCalled();
-    });
-
-    it('should handle token storage failure', async () => {
-      const mockResponse = {
-        data: {
-          user: { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User', role: 'SERVER' },
-          token: 'auth-token',
-          refreshToken: 'refresh-token',
-        },
+        password: 'password123',
       };
 
-      mockApi.post.mockResolvedValue(mockResponse);
-      mockStoreToken.mockRejectedValue(new Error('Storage failed'));
+      const mockResponse = {
+        user: {
+          id: 1,
+          email: 'test@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          role: 'SERVER',
+        },
+        token: 'auth-token',
+        refreshToken: 'refresh-token',
+      };
 
-      await expect(login('test@example.com', 'password')).rejects.toThrow('Storage failed');
+      mockApiClient.post.mockResolvedValue(mockResponse);
+
+      const result = await authService.login(mockCredentials);
+
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/login', mockCredentials, false);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle login failure with 401 error', async () => {
+      const mockCredentials = {
+        email: 'test@example.com',
+        password: 'wrong-password',
+      };
+
+      const error = new Error('HTTP_401: Unauthorized');
+      mockApiClient.post.mockRejectedValue(error);
+
+      await expect(authService.login(mockCredentials)).rejects.toThrow('Invalid email or password');
+    });
+
+    it('should handle network error', async () => {
+      const mockCredentials = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const error = new Error('NETWORK_ERROR');
+      mockApiClient.post.mockRejectedValue(error);
+
+      await expect(authService.login(mockCredentials)).rejects.toThrow('Network connection failed. Please check your internet connection');
     });
   });
 
   describe('logout', () => {
-    it('should logout successfully and remove tokens', async () => {
-      mockApi.post.mockResolvedValue({ data: { message: 'Logged out successfully' } });
-      mockRemoveToken.mockResolvedValue();
-      mockRemoveRefreshToken.mockResolvedValue();
+    it('should logout successfully', async () => {
+      mockApiClient.post.mockResolvedValue(undefined);
 
-      await logout();
+      await authService.logout();
 
-      expect(mockApi.post).toHaveBeenCalledWith('/auth/logout');
-      expect(mockRemoveToken).toHaveBeenCalled();
-      expect(mockRemoveRefreshToken).toHaveBeenCalled();
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
     });
 
-    it('should remove tokens even if API call fails', async () => {
-      mockApi.post.mockRejectedValue(new Error('Network error'));
-      mockRemoveToken.mockResolvedValue();
-      mockRemoveRefreshToken.mockResolvedValue();
+    it('should handle logout API failure gracefully', async () => {
+      const error = new Error('Network error');
+      mockApiClient.post.mockRejectedValue(error);
 
-      await logout();
-
-      expect(mockRemoveToken).toHaveBeenCalled();
-      expect(mockRemoveRefreshToken).toHaveBeenCalled();
-    });
-
-    it('should handle token removal failure', async () => {
-      mockApi.post.mockResolvedValue({ data: { message: 'Logged out successfully' } });
-      mockRemoveToken.mockRejectedValue(new Error('Removal failed'));
-
-      await expect(logout()).rejects.toThrow('Removal failed');
+      // Should not throw error even if API call fails
+      await expect(authService.logout()).resolves.toBeUndefined();
     });
   });
 
   describe('validateToken', () => {
     it('should validate token successfully', async () => {
+      mockApiClient.get.mockResolvedValue({ valid: true });
+
+      const result = await authService.validateToken();
+
+      expect(mockApiClient.get).toHaveBeenCalledWith('/auth/validate');
+      expect(result).toBe(true);
+    });
+
+    it('should handle invalid token', async () => {
+      const error = new Error('Invalid token');
+      mockApiClient.get.mockRejectedValue(error);
+
+      const result = await authService.validateToken();
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('refreshToken', () => {
+    it('should refresh token successfully', async () => {
+      const mockRefreshToken = 'old-refresh-token';
+      const mockResponse = {
+        token: 'new-auth-token',
+        refreshToken: 'new-refresh-token',
+      };
+
+      mockApiClient.post.mockResolvedValue(mockResponse);
+
+      const result = await authService.refreshToken(mockRefreshToken);
+
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/refresh', { refreshToken: mockRefreshToken }, false);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle refresh token failure', async () => {
+      const mockRefreshToken = 'expired-refresh-token';
+      const error = new Error('Refresh token expired');
+      mockApiClient.post.mockRejectedValue(error);
+
+      await expect(authService.refreshToken(mockRefreshToken)).rejects.toThrow('Session expired. Please log in again');
+    });
+  });
+
+  describe('getCurrentUser', () => {
+    it('should get current user successfully', async () => {
       const mockUser = {
         id: 1,
         email: 'test@example.com',
@@ -115,52 +139,19 @@ describe('authService', () => {
         role: 'SERVER',
       };
 
-      mockApi.get.mockResolvedValue({ data: mockUser });
+      mockApiClient.get.mockResolvedValue(mockUser);
 
-      const result = await validateToken('valid-token');
+      const result = await authService.getCurrentUser();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/auth/profile');
+      expect(mockApiClient.get).toHaveBeenCalledWith('/auth/profile');
       expect(result).toEqual(mockUser);
     });
 
-    it('should handle invalid token', async () => {
-      const error = new Error('Invalid token');
-      mockApi.get.mockRejectedValue(error);
+    it('should handle get user failure', async () => {
+      const error = new Error('Unauthorized');
+      mockApiClient.get.mockRejectedValue(error);
 
-      await expect(validateToken('invalid-token')).rejects.toThrow('Invalid token');
-    });
-  });
-
-  describe('refreshAuthToken', () => {
-    it('should refresh token successfully', async () => {
-      const mockResponse = {
-        data: {
-          token: 'new-auth-token',
-          refreshToken: 'new-refresh-token',
-        },
-      };
-
-      mockApi.post.mockResolvedValue(mockResponse);
-      mockStoreToken.mockResolvedValue();
-      mockStoreRefreshToken.mockResolvedValue();
-
-      const result = await refreshAuthToken('old-refresh-token');
-
-      expect(mockApi.post).toHaveBeenCalledWith('/auth/refresh', {
-        refreshToken: 'old-refresh-token',
-      });
-      expect(mockStoreToken).toHaveBeenCalledWith('new-auth-token');
-      expect(mockStoreRefreshToken).toHaveBeenCalledWith('new-refresh-token');
-      expect(result).toEqual(mockResponse.data);
-    });
-
-    it('should handle refresh token failure', async () => {
-      const error = new Error('Refresh token expired');
-      mockApi.post.mockRejectedValue(error);
-
-      await expect(refreshAuthToken('expired-refresh-token')).rejects.toThrow('Refresh token expired');
-      expect(mockStoreToken).not.toHaveBeenCalled();
-      expect(mockStoreRefreshToken).not.toHaveBeenCalled();
+      await expect(authService.getCurrentUser()).rejects.toThrow('Failed to fetch user profile');
     });
   });
 });

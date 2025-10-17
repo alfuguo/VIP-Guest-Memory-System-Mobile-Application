@@ -77,7 +77,7 @@ public class AuditAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();
-            Staff staff = authenticationService.findStaffByEmail(email);
+            Staff staff = authenticationService.findByEmail(email);
             if (staff != null) {
                 context.setStaffId(staff.getId());
                 context.setStaffEmail(staff.getEmail());

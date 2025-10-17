@@ -18,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,8 +75,7 @@ public class GuestService {
         Guest savedGuest = guestRepository.save(guest);
         
         // Log the action
-        auditLogService.logAction("CREATE_GUEST", "Guest created: " + savedGuest.getFullName(), 
-                                 savedGuest.getId(), currentStaff.getId());
+        auditLogService.logGuestCreated(currentStaff, savedGuest);
         
         return mapEntityToResponse(savedGuest);
     }
@@ -89,8 +90,7 @@ public class GuestService {
         
         // Log the access
         Staff currentStaff = getCurrentStaff();
-        auditLogService.logAction("VIEW_GUEST", "Guest profile viewed: " + guest.getFullName(), 
-                                 guest.getId(), currentStaff.getId());
+        auditLogService.logGuestAccessed(currentStaff, guest);
         
         return mapEntityToResponse(guest);
     }
@@ -111,6 +111,14 @@ public class GuestService {
             }
         }
         
+        // Capture original state for audit logging
+        Guest originalGuest = new Guest();
+        originalGuest.setId(guest.getId());
+        originalGuest.setFirstName(guest.getFirstName());
+        originalGuest.setLastName(guest.getLastName());
+        originalGuest.setPhone(guest.getPhone());
+        originalGuest.setEmail(guest.getEmail());
+        
         // Update guest entity
         mapRequestToEntity(request, guest);
         
@@ -119,8 +127,7 @@ public class GuestService {
         
         // Log the action
         Staff currentStaff = getCurrentStaff();
-        auditLogService.logAction("UPDATE_GUEST", "Guest updated: " + updatedGuest.getFullName(), 
-                                 updatedGuest.getId(), currentStaff.getId());
+        auditLogService.logGuestUpdated(currentStaff, originalGuest, updatedGuest);
         
         return mapEntityToResponse(updatedGuest);
     }
@@ -138,8 +145,7 @@ public class GuestService {
         
         // Log the action
         Staff currentStaff = getCurrentStaff();
-        auditLogService.logAction("DELETE_GUEST", "Guest deleted: " + guest.getFullName(), 
-                                 guest.getId(), currentStaff.getId());
+        auditLogService.logGuestDeleted(currentStaff, guest);
     }
     
     /**
@@ -263,8 +269,9 @@ public class GuestService {
             
             // Log the action
             Staff currentStaff = getCurrentStaff();
-            auditLogService.logAction("UPLOAD_PHOTO", "Photo uploaded for guest: " + guest.getFullName(), 
-                                     guest.getId(), currentStaff.getId());
+            auditLogService.logDataModification(currentStaff, "guests", guest.getId(), 
+                                               "UPLOAD_PHOTO", null, 
+                                               Map.of("message", "Photo uploaded for guest: " + guest.getFullName()));
             
             return mapEntityToResponse(updatedGuest);
             
@@ -291,8 +298,9 @@ public class GuestService {
         
         // Log the action
         Staff currentStaff = getCurrentStaff();
-        auditLogService.logAction("DELETE_PHOTO", "Photo deleted for guest: " + guest.getFullName(), 
-                                 guest.getId(), currentStaff.getId());
+        auditLogService.logDataModification(currentStaff, "guests", guest.getId(), 
+                                           "DELETE_PHOTO", null, 
+                                           Map.of("message", "Photo deleted for guest: " + guest.getFullName()));
         
         return mapEntityToResponse(updatedGuest);
     }

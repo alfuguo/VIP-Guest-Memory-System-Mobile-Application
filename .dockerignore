@@ -1,0 +1,80 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Node modules (for mobile app)
+mobile-app/node_modules/
+mobile-app/.expo/
+mobile-app/dist/
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+backups/
+*.backup
+
+# SSL certificates
+ssl/
+
+# Docker files (not needed in container)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Deployment scripts
+deploy.sh
+deploy.ps1
+
+# Test files
+src/test/
+mobile-app/__tests__/
+mobile-app/coverage/
+
+# Build artifacts
+*.jar
+*.war
+*.class
+
+# IDE specific
+.settings/
+.project
+.classpath
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Linux
+*~
